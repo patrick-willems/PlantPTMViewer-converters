@@ -21,13 +21,11 @@ PTM_type = {
 
 ###Preliminary checks for input file
 #Check if argument provided
-if len(sys.argv) == 1:
-    sys.exit('##ERROR: No input file specified, usage: \'MaxQuant_converter.py <xxxSites.txt>\'\n\nFor instance: MaxQuant_converter.py Phospho (STY)Sites.txt\nThis will return as output Phospho (STY)Sites_PlanPTMViewer.txt whose (tab-delimited) content can be pasted in the template Excel sheet.')
+if len(sys.argv) == 1: sys.exit('##ERROR: No input file specified, usage: \'MaxQuant_converter.py <xxxSites.txt>\'\n\nFor instance: MaxQuant_converter.py Phospho (STY)Sites.txt\nThis will return as output Phospho (STY)Sites_PlantPTMViewer.txt whose (tab-delimited) content can be pasted in the template Excel sheet.')
 else: input_f = sys.argv[1]
 
 #Check if file exists
-if not path.exists(input_f):
-    sys.exit('##ERROR: Specified input file does not exist, double-check the provided path.')
+if not path.exists(input_f): sys.exit('##ERROR: Specified input file does not exist, double-check the provided path.')
 
 #Check if necessary information in file
 f = open(input_f,'r')
@@ -35,20 +33,16 @@ header_line = next(f)
 headers = header_line.split('\t')
 colIndex = {}
 for i in range(len(headers)):
-    if headers[i] == 'PEP':                         #Posterior error probability
-        colIndex.update({'PEP': i})                       
-    elif headers[i] == 'Score':                     #MaxQuant score
-        colIndex.update({'score': i})                 
-    elif headers[i] == 'Mass error [ppm]':          #Mass error
-        colIndex.update({'mass_error': i}) 
-    elif re.match(r'.+ Probabilities$',headers[i]): #Localisation probabilities
+    if headers[i] == 'PEP': colIndex.update({'PEP': i})                         #Posterior error probability                         
+    elif headers[i] == 'Score': colIndex.update({'score': i})                   #MaxQuant score
+    elif headers[i] == 'Mass error [ppm]': colIndex.update({'mass_error': i})   #Mass error    
+    elif re.match(r'.+ Probabilities$',headers[i]):                             #Localisation probabilities
         colIndex.update({'loc_prob': i}) 
         mod = re.match(r'(.+) Probabilities$',headers[i]).group(1)
-        if mod in PTM_type:                         #Replace with PTM viewer modification abbreviation
-            mod = PTM_type[mod]
+        if mod in PTM_type: mod = PTM_type[mod]                      #Replace with PTM viewer modification abbreviation
 
-if 'loc_prob' not in colIndex:
-    sys.exit('##ERROR: No localisation probability header found in the file (e.g. Phospho (STY) Probabilities), please retain the full file or contact us whether your headers do not correspond as anticipated here in the script.')
+#Our scripts requires the localisation probabilities          
+if 'loc_prob' not in colIndex: sys.exit('##ERROR: No localisation probability header found in the file (e.g. Phospho (STY) Probabilities), please retain the full file or contact us whether your headers do not correspond as anticipated here in the script.')
 
 PTM = {}
 for line in f:
